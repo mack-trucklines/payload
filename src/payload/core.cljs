@@ -1,5 +1,5 @@
 (ns payload.core
-  (:require [reagent.core :as r])))
+  (:require [reagent.core :as r]))
 
 (def pro (r/atom ""))
 (def date (r/atom ""))
@@ -12,6 +12,8 @@
 (def expenses (r/atom 0))
 (def hours (r/atom 0))
 (def total-hours (r/atom 0))
+(def fuel (r/atom 0))
+(def total-fuel (r/atom 0))
 (def per-dm (r/atom 0))
 (def total-per-dm (r/atom 0))
 (def stops (r/atom 0))
@@ -32,71 +34,82 @@
     (swap! submitted assoc id input)))
 
 (defn input
-  [type needs-dollar at]
+  [type at]
   [:input {:type type
-           :value (str (if (needs-dollar) "$" "") at "")}])
+           :value @at
+           :on-change #(reset! at (-> % .-target .-value))}])
 
 (defn previous-inputs
   []
-  (for [[id value] submitted]
-    [:tr
-     [:td [input "type" false (:pro value)]]
-     [:td [input "date" false (:date value)]]
-     [:td [input "number" false (:trk value)]]
-     [:td [input "text" false (:origin value)]]
-     [:td [input "text" false (:destination value)]]
-     [:td [input "text" true (:revenue value)]]
-     [:td [input "text" false]]
-     [:td [input "text" false (:stops value)]]
-     [:td [input "text" false (:dh value)]]
-     [:td [input "text" true (:hours value)]]
-     [:td [input "text" false (:loaded value)]]
-     [:td [input "text" false (:mi value)]]
-     [:td [input "text" true (:per-dm value)]]
-     [:td [input "text" true ((:revenue value) * 0.92)]]]))
+  (if (> @counter 0)
+     (for [[key value] @submitted]
+      [:tr
+       [:td (:pro value)]
+       [:td (:date value)]
+       [:td (:trk value)]
+       [:td (:origin value)]
+       [:td (:destination value)]
+       [:td (:revenue value)]
+       [:td [:fuel value]]
+       [:td (:stops value)]
+       [:td (:dh value)]
+       [:td (:hours value)]
+       [:td (:loaded value)]
+       [:td (:mi value)]
+       [:td (:per-dm value)]
+       [:td (* (:revenue value) 0.92)]])))
 
 (defn input-row
   []
   [:tr
-   [:td [input "type" false @pro]]
-   [:td [input "date" false @date]]
-   [:td [input "number" false @trk]]
-   [:td [input "text" false @origin]]
-   [:td [input "text" false @destination]]
-   [:td [input "text" true @revenue]]
-   [:td [input "text" false]]
-   [:td [input "text" false @stops]]
-   [:td [input "text" false @dh]]
-   [:td [input "text" true @hours]]
-   [:td [input "text" false @loaded]]
-   [:td [input "text" false @mi]]
-   [:td [input "text" true @per-dm]]
-   [:td [input "text" true (@revenue * 0.92)]]])
+   [:td [input "type" pro]]
+   [:td [input "date" date]]
+   [:td [input "number" trk]]
+   [:td [input "text" origin]]
+   [:td [input "text" destination]]
+   [:td [input "text" revenue]]
+   [:td [input "text" fuel]]
+   [:td [input "text" stops]]
+   [:td [input "text" dh]]
+   [:td [input "text" hours]]
+   [:td [input "text" loaded]]
+   [:td [input "text" mi]]
+   [:td [input "text" per-dm]]
+   [:td (* @revenue 0.92)]
+   ])
 
 
 (defn total-row
   []
   [:tr
-   [:td {:colspan "5"}]
-   [:td [input "type" true (@total-revenue + @revenue)]]
+   [:td {:colSpan 5}]
+   [:td (+ @total-revenue @revenue)]
    [:td]
-   [:td [input "type" false (@total-stops + @stops)]]
-   [:td [input "type" false (@total-dh + @dh)]]
-   [:td [input "type" true (@total-hours + @hours)]]
-   [:td [input "type" false (@total-loaded + @loaded)]]
-   [:td [input "type" false (@total-mi + @mi)]]
-   [:td [input "type" true (@total-per-dm + @per-dm)]]
-   [:td [input "type" true ((@total-revenue + @revenue) * 0.92)]]])
+   [:td (+ @total-stops @stops)]
+   [:td (+ @total-dh @dh)]
+   [:td (+ @total-hours @hours)]
+   [:td (+ @total-loaded @loaded)]
+   [:td (+ @total-mi @mi)]
+   [:td (+ @total-per-dm @per-dm)]
+   [:td (* 0.92 (+ @total-revenue @revenue))]])
 
+(defn handle-click
+  [input-attrs]
+   (reset! total-revenue (+ @total-revenue @revenue))
+   (reset! total-stops (+ @total-stops @stops))
+   (reset! total-dh (+ @total-dh @dh))
+   (reset! total-hours (+ @total-hours @hours))
+   (reset! total-mi (+ @total-mi @mi))
+   (reset! total-loaded (+ @total-loaded @loaded))
+   (reset! total-per-dm (+ @total-per-dm @per-dm))
+   (add-input input-attrs))
 (defn button
   []
-  (let [
-        pro-val @pro
+  (let [pro-val @pro
         date-val @date
         trk-val @trk
         origin-val @origin
         destination-val @destination
-        origin-val @origin
         revenue-val @revenue
         stops-val @stops
         dh-val @dh
@@ -104,34 +117,33 @@
         loaded-val @loaded
         mi-val @mi
         per-dm-val @per-dm
-        mi-val @mi
-        ])
-  [:button
-   {:on-click #(add-input {:pro pro-val
-                           :date date-val
-                           :trk trk-val
-                           :origin origin-val
-                           :destination destination-val
-                           :origin origin-val
-                           :revenue revenue-val
-                           :stops stops-val
-                           :dh dh-val
-                           :hours hours-val
-                           :loaded loaded-val
-                           :mi mi-val
-                           :per-dm per-dm-val
-                           :mi mi-val})}])
+        mi-val @mi]
+    [:button
+     {:on-click #(handle-click {:pro pro-val
+                                :date date-val
+                                :trk trk-val
+                                :origin origin-val
+                                :destination destination-val
+                                :revenue revenue-val
+                                :stops stops-val
+                                :dh dh-val
+                                :hours hours-val
+                                :loaded loaded-val
+                                :per-dm per-dm-val
+                                :mi mi-val})} "Add row"]))
 
 (defn full
   []
   [:div
-   [previous-inputs]
-   [input-row]
-   [total-row]
-   [button]])
+   [:table
+     [previous-inputs]
+     [input-row]
+     [total-row]]
+     [button]])
 
 (defn start
   "Mounts the necessary reagent component to document element with id 'id'"
   []
-  (let [id "app"]
-    (r/render full id)))
+  (r/render [full] (.getElementById js/document "app")))
+
+(start)

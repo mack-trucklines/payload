@@ -18,8 +18,7 @@
                          :output-to "resources/public/js/main.js"
                          :output-dir "resources/public/js/out"
                          :optimizations :none
-                         :source-map true}
-            }]
+                         :source-map true}}]
   }
 
   :figwheel {
