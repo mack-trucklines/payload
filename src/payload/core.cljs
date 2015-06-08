@@ -36,13 +36,54 @@
     (swap! submitted assoc id input-with-id)))
 
 (defn input
-  [type at]
+  [type at int?]
   [:input {:type type
            :value @at
-           :on-change #(if (= type "text")
+           :on-change #(if int?
                           (reset! at (int (-> % .-target .-value)))
-                          (reset! at (-> % .-target .-value))
-                          )}])
+                          (reset! at (-> % .-target .-value)))}])
+
+(defn header
+  []
+  [:tbody
+    [:tr
+      [:td {:colSpan 1}
+       "Settlement #:"]
+      [:td {:colSpan 6}
+       [:input {:type "text"}]]
+      [:td {:colSpan 1}
+         "Gross Pay:"]
+      [:td {:colSpan 6}
+       @total-revenue]]
+    [:tr
+      [:td {:colSpan 1}
+       "Driver's name:"]
+      [:td {:colSpan 6}
+       [:input {:type "text"}]]
+      [:td {:colSpan 1}
+       "- Advances:"]
+      [:td {:colSpan 6}
+       [input "text" advances true]]]
+    [:tr
+      [:td {:colSpan 1}
+       "Pay Type:" ]
+      [:td {:colSpan 6}
+       [:input {:type "text"}]]
+      [:td {:colSpan 1}
+       "+ Expenses:"]
+      [:td {:colSpan 6}
+       [input "text" expenses true]]]
+    [:tr
+      [:td {:colSpan 1}
+       "Pay Rate:"]
+      [:td {:colSpan 1}
+       [:input {:type "text"}]
+      [:td {:colSpan 5} @trk]
+      [:td {:colSpan 1}
+       "Net Pay:"]
+      [:td {:colSpan 6}
+       (.log js/console @total-revenue)
+       (+ (- (* @total-revenue 0.82) @advances) @expenses)]]]])
 
 (defn heading-row
   []
@@ -90,19 +131,19 @@
 (defn input-row
   []
   [:tr
-   [:td [input "type" pro]]
-   [:td [input "date" date]]
-   [:td [input "number" trk]]
-   [:td [input "text" origin]]
-   [:td [input "text" destination]]
-   [:td [input "text" revenue]]
-   [:td [input "text" fuel]]
-   [:td [input "text" stops]]
-   [:td [input "text" dh]]
-   [:td [input "text" hours]]
-   [:td [input "text" loaded]]
-   [:td [input "text" mi]]
-   [:td [input "text" per-dm]]
+   [:td [input "type" pro true]]
+   [:td [input "date" date false]]
+   [:td [input "number" trk true]]
+   [:td [input "text" origin false]]
+   [:td [input "text" destination false]]
+   [:td [input "text" revenue true]]
+   [:td [input "text" fuel true]]
+   [:td [input "text" stops true]]
+   [:td [input "text" dh true]]
+   [:td [input "text" hours true]]
+   [:td [input "text" loaded true]]
+   [:td [input "text" mi true]]
+   [:td [input "text" per-dm true]]
    [:td (* @revenue 0.92)]
    ])
 
@@ -182,6 +223,7 @@
   (fn []
   [:div
    [:table
+     [header]
      [heading-row]
      [previous-inputs]
      [input-row]
