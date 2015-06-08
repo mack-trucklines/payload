@@ -10,4 +10,3 @@ pom.xml
 .vagrant
 .nrepl-port
 figwheel_server.log
-resources/public/js
