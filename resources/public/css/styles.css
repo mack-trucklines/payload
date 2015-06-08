@@ -1,0 +1,31 @@
+td,input {
+	text-align: center;
+}
+
+input {
+	font-size: 12px;
+}
+
+html, body {
+    height:100%;
+    width:100%;
+    margin:0;
+    padding:0;
+}
+
+table {
+	width: 100%;
+}
+
+td,th {
+	width: 7%;
+}
+
+tbody:first {
+	padding-bottom: 20px;
+}
+
+th{
+	background-color: #ddd;
+	text-decoration: underline;
+}

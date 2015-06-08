@@ -22,5 +22,4 @@
   }
 
   :figwheel {
-    :css-dirs ["resources/public/css"]
   })

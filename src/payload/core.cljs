@@ -37,7 +37,7 @@
 
 (defn input
   [type at int?]
-  [:input {:type type
+  [:input.border-less {:type type
            :value @at
            :on-change #(if int?
                           (reset! at (int (-> % .-target .-value)))
@@ -47,43 +47,50 @@
   []
   [:tbody
     [:tr
-      [:td {:colSpan 1}
+      [:td
        "Settlement #:"]
-      [:td {:colSpan 6}
-       [:input {:type "text"}]]
-      [:td {:colSpan 1}
+      [:td
+       [:input.border-less {:type "text"}]]
+      [:td {:colSpan 5}]
+      [:td
          "Gross Pay:"]
-      [:td {:colSpan 6}
-       @total-revenue]]
+      [:td
+       @total-revenue]
+      [:td {:colSpan 5}]]
     [:tr
-      [:td {:colSpan 1}
+      [:td
        "Driver's name:"]
-      [:td {:colSpan 6}
-       [:input {:type "text"}]]
-      [:td {:colSpan 1}
+      [:td
+       [:input.border-less {:type "text"}]]
+      [:td {:colSpan 5}]
+      [:td
        "- Advances:"]
-      [:td {:colSpan 6}
-       [input "text" advances true]]]
+      [:td
+       [input "text" advances true]]
+      [:td {:colSpan 5}]]
     [:tr
-      [:td {:colSpan 1}
+      [:td
        "Pay Type:" ]
-      [:td {:colSpan 6}
-       [:input {:type "text"}]]
-      [:td {:colSpan 1}
+      [:td
+       [:input.border-less {:type "text"}]]
+      [:td {:colSpan 5}]
+      [:td
        "+ Expenses:"]
-      [:td {:colSpan 6}
-       [input "text" expenses true]]]
+      [:td
+       [input "text" expenses true]]
+      [:td {:colSpan 5}]]
     [:tr
-      [:td {:colSpan 1}
+      [:td
        "Pay Rate:"]
-      [:td {:colSpan 1}
-       [:input {:type "text"}]
-      [:td {:colSpan 5} @trk]
-      [:td {:colSpan 1}
+      [:td
+       [:input.border-less {:type "text"}]
+      [:td @trk]
+      [:td {:colSpan 4}]
+      [:td
        "Net Pay:"]
-      [:td {:colSpan 6}
-       (.log js/console @total-revenue)
-       (+ (- (* @total-revenue 0.82) @advances) @expenses)]]]])
+      [:td
+       (+ (- (* @total-revenue 0.82) @advances) @expenses)]
+      [:td {:colSpan 4}]]]])
 
 (defn heading-row
   []
