@@ -10,16 +10,21 @@
   :clean-targets ^{:protect false} [:target-path "out" "resources/public/js"]
 
   :cljsbuild {
-    :builds [{:id "dev"
-              :source-paths ["src"]
-              :figwheel { :on-jsload "payload.core/start" }
-              :compiler {:main payload.core
-                         :asset-path "js/out"
-                         :output-to "resources/public/js/main.js"
-                         :output-dir "resources/public/js/out"
-                         :optimizations :none
-                         :source-map true}}]
-  }
-
-  :figwheel {
-  })
+    :builds [{:dev
+               {:source-paths ["src"]
+                :figwheel { :on-jsload "payload.core/start" }
+                :compiler {:main payload.core
+                           :asset-path "js/out"
+                           :output-to "resources/public/js/main.js"
+                           :output-dir "resources/public/js/out"
+                           :optimizations :none
+                           :source-map true}}}
+              {:prod
+               {:id "prod"
+                :source-paths ["src"]
+                :compiler {:main payload.core
+                           :output-to "resources/public/js/main.js"
+                           :optimizations :advanced
+                           :asset-path "js/out"
+                           :output-dir "resources/public/js/out"
+                           :pretty-print false}}}]})
