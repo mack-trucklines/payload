@@ -1,6 +1,7 @@
 (ns payload.core
   (:require [reagent.core :as r]))
 
+(def trigger (r/atom true))
 (def pro (r/atom ""))
 (def date (r/atom ""))
 (def trk (r/atom ""))
@@ -24,40 +25,67 @@
 (def total-loaded (r/atom 0))
 (def mi (r/atom 0))
 (def total-mi (r/atom 0))
-(def submitted (atom (sorted-map)))
+(def submitted (r/atom (sorted-map)))
 
-(def counter (atom 0))
+(def counter (atom 2))
 
 (defn add-input
   [input]
-  (let [id (swap! counter inc)]
-    (swap! submitted assoc id input)))
+  (let [id (swap! counter inc)
+        input-with-id (assoc input :id id)]
+    (swap! submitted assoc id input-with-id)))
 
 (defn input
   [type at]
   [:input {:type type
            :value @at
-           :on-change #(reset! at (-> % .-target .-value))}])
+           :on-change #(if (= type "text")
+                          (reset! at (int (-> % .-target .-value)))
+                          (reset! at (-> % .-target .-value))
+                          )}])
+
+(defn heading-row
+  []
+  [:tr
+   [:th "Pro #"]
+   [:th "Date"]
+   [:th "Trk/Trl"]
+   [:th "Origin"]
+   [:th "Destination"]
+   [:th "Revenue"]
+   [:th "Fuel"]
+   [:th "Stops"]
+   [:th "DH"]
+   [:th "Hours"]
+   [:th "Loaded"]
+   [:th "Tot Mi"]
+   [:th "Per Dm"]
+   [:th "Total Pay"]])
 
 (defn previous-inputs
   []
-  (if (> @counter 0)
-     (for [[key value] @submitted]
-      [:tr
-       [:td (:pro value)]
-       [:td (:date value)]
-       [:td (:trk value)]
-       [:td (:origin value)]
-       [:td (:destination value)]
-       [:td (:revenue value)]
-       [:td [:fuel value]]
-       [:td (:stops value)]
-       [:td (:dh value)]
-       [:td (:hours value)]
-       [:td (:loaded value)]
-       [:td (:mi value)]
-       [:td (:per-dm value)]
-       [:td (* (:revenue value) 0.92)]])))
+  [:tbody
+   [:tr @trigger]
+   (doall
+       (for [[key value] @submitted
+             :when (> @counter 0)]
+       ^{:key (:id value)}
+        [:tr
+         [:td (:pro value)]
+         [:td (:date value)]
+         [:td (:trk value)]
+         [:td (:origin value)]
+         [:td (:destination value)]
+         [:td (:revenue value)]
+         [:td (:fuel value)]
+         [:td (:stops value)]
+         [:td (:dh value)]
+         [:td (:hours value)]
+         [:td (:loaded value)]
+         [:td (:mi value)]
+         [:td (:per-dm value)]
+         [:td (* (:revenue value) 0.92)]]))
+   ])
 
 (defn input-row
   []
@@ -99,10 +127,25 @@
    (reset! total-stops (+ @total-stops @stops))
    (reset! total-dh (+ @total-dh @dh))
    (reset! total-hours (+ @total-hours @hours))
+   (reset! total-fuel (+ @total-fuel @fuel))
    (reset! total-mi (+ @total-mi @mi))
    (reset! total-loaded (+ @total-loaded @loaded))
    (reset! total-per-dm (+ @total-per-dm @per-dm))
-   (add-input input-attrs))
+   (reset! pro "")
+   (reset! trk "")
+   (reset! origin "")
+   (reset! destination "")
+   (reset! revenue "")
+   (reset! stops "")
+   (reset! dh "")
+   (reset! hours "")
+   (reset! fuel "")
+   (reset! mi "")
+   (reset! loaded "")
+   (reset! per-dm "")
+   (add-input input-attrs)
+   (reset! trigger (not @trigger)))
+
 (defn button
   []
   (let [pro-val @pro
@@ -112,6 +155,7 @@
         destination-val @destination
         revenue-val @revenue
         stops-val @stops
+        fuel-val @fuel
         dh-val @dh
         hours-val @hours
         loaded-val @loaded
@@ -126,6 +170,7 @@
                                 :destination destination-val
                                 :revenue revenue-val
                                 :stops stops-val
+                                :fuel fuel-val
                                 :dh dh-val
                                 :hours hours-val
                                 :loaded loaded-val
@@ -134,12 +179,14 @@
 
 (defn full
   []
+  (fn []
   [:div
    [:table
+     [heading-row]
      [previous-inputs]
      [input-row]
      [total-row]]
-     [button]])
+     [button]]))
 
 (defn start
   "Mounts the necessary reagent component to document element with id 'id'"
