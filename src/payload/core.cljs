@@ -89,7 +89,7 @@
       [:td
        "Net Pay:"]
       [:td
-       (+ (- (* @total-revenue 0.82) @advances) @expenses)]
+       (+ (- @total-revenue @advances @expenses)]
       [:td {:colSpan 4}]]]])
 
 (defn heading-row
